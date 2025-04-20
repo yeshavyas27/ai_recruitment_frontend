@@ -229,6 +229,15 @@ def get_candidate_profile():
         data = response.json()
         resume_data = data["parsed_resume"]
         st.session_state.s3_link = data["s3_link"] if data.get("s3_link") else None
+        if resume_data.get("education"):
+            st.session_state.education_data = resume_data.get("education")
+            st.session_state.profile_education_fields = len(st.session_state.education_data)
+        if resume_data.get("experience"):
+            st.session_state.experience_data = resume_data.get("experience")
+            st.session_state.profile_experience_fields = len(st.session_state.experience_data)
+        if resume_data.get("accomplishments_and_projects"): 
+            st.session_state.projects_data = resume_data.get("accomplishments_and_projects")
+            st.session_state.profile_projects_fields = len(st.session_state.projects_data)
         return False, resume_data
     else:
         return True, {}
