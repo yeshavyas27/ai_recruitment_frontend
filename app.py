@@ -283,11 +283,10 @@ def candidate_profile():
     uploaded_file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
 
 
-    if st.button("Autofill Profile"):
-        if uploaded_file is not None:
-            autofill_profile(uploaded_file)
-        else:
-            st.info("Please upload a resume to autofill your profile.")
+    if uploaded_file is not None:
+        autofill_profile(uploaded_file)
+    else:
+        st.info("Please upload a resume to autofill your profile.")
     
     
     with st.expander("Basic Information", expanded=True):
