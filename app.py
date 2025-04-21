@@ -25,6 +25,16 @@ if "current_page" not in st.session_state:
     st.session_state.current_page = "login"
 
 if st.session_state.role == "candidate":
+    if "name" not in st.session_state:
+        st.session_state.name = None
+    if "linkedin" not in st.session_state:
+        st.session_state.linkedin = None
+    if "github" not in st.session_state:
+        st.session_state.github = None
+    if "skills" not in st.session_state:
+        st.session_state.skills = None
+    if "total_years_of_experience" not in st.session_state:
+        st.session_state.total_years_of_experience = None
     if "profile_education_fields"  not in st.session_state:
         st.session_state.profile_education_fields = 1
     if "education_data" not in st.session_state:
@@ -229,6 +239,16 @@ def get_candidate_profile():
         data = response.json()
         resume_data = data["parsed_resume"]
         st.session_state.s3_link = data["s3_link"] if data.get("s3_link") else None
+        if resume_data.get("name"):
+            st.session_state.name = resume_data.get("name")
+        if resume_data.get("linkedin"):
+            st.session_state.linkedin = resume_data.get("linkedin")
+        if resume_data.get("github"):
+            st.session_state.github = resume_data.get("github")
+        if resume_data.get("skills"):
+            st.session_state.skills = resume_data.get("skills")
+        if resume_data.get("total_years_of_experience"):
+            st.session_state.total_years_of_experience = resume_data.get("total_years_of_experience")
         if resume_data.get("education"):
             st.session_state.education_data = resume_data.get("education")
             st.session_state.profile_education_fields = len(st.session_state.education_data)
@@ -242,7 +262,6 @@ def get_candidate_profile():
     else:
         return True, {}
     
-@st.cache_resource
 def autofill_profile(uploaded_file):
     # Send the uploaded file to the API
             files = {"file": uploaded_file}
@@ -256,6 +275,16 @@ def autofill_profile(uploaded_file):
                 data = response.json()
                 resume_data = data["parsed_resume"]
                 st.session_state.s3_link = data["s3_link"]
+                if resume_data.get("name"):
+                    st.session_state.name = resume_data.get("name")
+                if resume_data.get("linkedin"):
+                    st.session_state.linkedin = resume_data.get("linkedin")
+                if resume_data.get("github"):
+                    st.session_state.github = resume_data.get("github")
+                if resume_data.get("skills"):
+                    st.session_state.skills = resume_data.get("skills")
+                if resume_data.get("total_years_of_experience"):
+                    st.session_state.total_years_of_experience = resume_data.get("total_years_of_experience")
                 if resume_data.get("education"):
                     st.session_state.education_data = resume_data.get("education")
                     st.session_state.profile_education_fields = len(st.session_state.education_data)
@@ -277,27 +306,28 @@ def candidate_profile():
     
 
     # add link to view the resume file 
-    st.write(f"[View Resume]({st.session_state.s3_link})")
+    if st.session_state.s3_link:
+        st.write(f"[View Resume]({st.session_state.s3_link})")
 
     st.write("Autofill Profile with Resume")
     uploaded_file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
 
-
-    if uploaded_file is not None:
-        autofill_profile(uploaded_file)
-    else:
-        st.info("Please upload a resume to autofill your profile.")
-    
+    if st.button("Autofill Profile"):
+        if uploaded_file is not None:
+            autofill_profile(uploaded_file)
+        else:
+            st.info("Please upload a resume to autofill your profile.")
+        
     
     with st.expander("Basic Information", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
-            name = st.text_input("Full Name", value=resume_data.get("name", ""))
+            st.session_state.name = st.text_input("Full Name", value=resume_data.get("name", ""))
         with col2:
-            linkedin = st.text_input("LinkedIn URL", value=resume_data.get("linkedin", ""))
-            github = st.text_input("GitHub URL", value=resume_data.get("github", ""))
+            st.session_state.linkedin = st.text_input("LinkedIn URL", value=resume_data.get("linkedin", ""))
+            st.session_state.github = st.text_input("GitHub URL", value=resume_data.get("github", ""))
         
-        total_exp = st.text_input("Total Years of Experience", value=resume_data.get("total_years_of_experience", ""))
+        st.session_state.total_years_of_experience = st.text_input("Total Years of Experience", value=resume_data.get("total_years_of_experience", ""))
 
     # Skills section
     with st.expander("Skills", expanded=True):
@@ -317,7 +347,7 @@ def candidate_profile():
         
         # Process skills from text area to list
         if new_skills:
-            skills_list = [skill.strip() for skill in new_skills.split(",") if skill.strip()]
+            st.session_state.skills = [skill.strip() for skill in new_skills.split(",") if skill.strip()]
         else:
             skills_list = []
 
@@ -488,14 +518,14 @@ def candidate_profile():
         # Prepare update data
         request_data = {
             "parsed_resume": {
-            "name": name,
-            "linkedin": linkedin,
-            "github": github,
-            "skills": skills_list,
+            "name": st.session_state.name,
+            "linkedin": st.session_state.linkedin,
+            "github": st.session_state.github,
+            "skills": st.session_state.skills,
             "education": st.session_state.education_data,
             "experience": st.session_state.experience_data,
             "accomplishments_and_projects": st.session_state.projects_data,
-            "total_years_of_experience": total_exp,
+            "total_years_of_experience": st.session_state.total_years_of_experience,
             },
             "s3_link": st.session_state.s3_link,
         }
