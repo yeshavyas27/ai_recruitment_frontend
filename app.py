@@ -87,6 +87,20 @@ def logout():
     st.session_state.user_id = None
     st.session_state.role = None
     st.session_state.current_page = "login"
+    st.session_state.name = None
+    st.session_state.linkedin = None
+    st.session_state.github = None
+    st.session_state.skills = None
+    st.session_state.total_years_of_experience = None
+    st.session_state.profile_education_fields = 1
+    st.session_state.education_data = [{}]
+    st.session_state.profile_experience_fields = 1  
+    st.session_state.experience_data = [{}]
+    st.session_state.profile_projects_fields = 1
+    st.session_state.projects_data = [{}]
+    st.session_state.s3_link = None
+    # Clear cache to reset any cached data
+    st.cache_resource.clear()
 
 def navigate_to(page: str):
     """Navigate to a specific page"""
@@ -322,18 +336,18 @@ def candidate_profile():
     with st.expander("Basic Information", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
-            st.session_state.name = st.text_input("Full Name", value=resume_data.get("name", ""))
+            st.session_state.name = st.text_input("Full Name", value=st.session_state.name, help="Enter your full name")
         with col2:
-            st.session_state.linkedin = st.text_input("LinkedIn URL", value=resume_data.get("linkedin", ""))
-            st.session_state.github = st.text_input("GitHub URL", value=resume_data.get("github", ""))
+            st.session_state.linkedin = st.text_input("LinkedIn URL", value=st.session_state.linkedin, help="Enter your LinkedIn profile URL")
+            st.session_state.github = st.text_input("GitHub URL", value=st.session_state.github, help="Enter your GitHub profile URL")
         
-        st.session_state.total_years_of_experience = st.text_input("Total Years of Experience", value=resume_data.get("total_years_of_experience", ""))
+        st.session_state.total_years_of_experience = st.text_input("Total Years of Experience", value=st.session_state.total_years_of_experience, help="Enter your total years of experience")
 
     # Skills section
     with st.expander("Skills", expanded=True):
         st.subheader("Your Skills")
         
-        skills = resume_data.get("skills", [])
+        skills = st.session_state.skills
         if skills:
             skills_text = ", ".join(skills)
         else:
